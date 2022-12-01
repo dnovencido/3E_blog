@@ -1,22 +1,31 @@
 <?php
     include "functions.php";
+    include "session.php";
     
     $errors = [];
 
     if($_POST['submit']) {
+
         if(!$_POST['name']){
             $errors[] = "Name is required.";
         }
+
         if(!$_POST['email']){
             $errors[] = "Email is required.";
         }  
+
         if(!$_POST['password']){
             $errors[] = "Password is required.";
         }
 
         if(empty($errors)) {
             if(!check_existing_email($_POST['email'])){
-                // Save user registration to database
+                $user = save_registration($_POST['name'], $_POST['email'], $_POST['password']);
+                if(!empty($user)) {
+                    $_SESSION['id'] = $user['id'];
+                    $_SESSION['name'] = $user['name'];
+                    header("Location: account.php");
+                }   
             } else {
                 $errors[] = "The email address is already existing.";
             }
