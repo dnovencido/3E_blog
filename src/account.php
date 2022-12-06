@@ -1,5 +1,9 @@
 <?php
     include "session.php";
+
+    if(!isset($_SESSION['id'])) {
+      header("Location: / ");
+    }
 ?>
 <?php include "layouts/_header.php"; ?>
          <header>
