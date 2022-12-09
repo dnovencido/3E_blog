@@ -155,4 +155,18 @@
 
         return $blog;
     }
+
+    function update_blog($title, $body, $category_id, $id) {
+        global $connection;
+        $flag = false;
+
+        $last_updated = date("Y-m-d H:i:s");
+        $query = "UPDATE `blogs` SET `blogs`.`title` = '".escape_string($title)."', `blogs`.`body` = '".escape_string($body)."', `blogs`.`category_id` = '".escape_string($category_id)."', `blogs`.`last_updated` = '".$last_updated."' WHERE `blogs`.`id` = '".escape_string($id)."'";
+
+        if(mysqli_query($connection, $query)) {
+            $flag = true;
+        }
+
+        return $flag;
+    }
 ?>
