@@ -156,17 +156,45 @@
         return $blog;
     }
 
-    function update_blog($title, $body, $category_id, $id) {
+    function update_blog($id, $title, $body, $category_id) {
         global $connection;
         $flag = false;
 
-        $last_updated = date("Y-m-d H:i:s");
-        $query = "UPDATE `blogs` SET `blogs`.`title` = '".escape_string($title)."', `blogs`.`body` = '".escape_string($body)."', `blogs`.`category_id` = '".escape_string($category_id)."', `blogs`.`last_updated` = '".$last_updated."' WHERE `blogs`.`id` = '".escape_string($id)."'";
-
-        if(mysqli_query($connection, $query)) {
+        $last_updated = date('Y-m-d H:i:s');
+        $query = "UPDATE `blogs` as `b` SET `b`.`title` = '".escape_string($title)."', `b`.`body` = '".escape_string($body)."', `b`.`category_id` = '".escape_string($category_id)."', `b`.`last_updated` = '".$last_updated."' WHERE `b`.`id` = '".escape_string($id)."'";
+        
+        if (mysqli_query($connection, $query)) {
             $flag = true;
         }
-
+        
         return $flag;
+    }
+
+    function get_all_blogs() {
+        global $connection;
+        $blogs = [];
+
+        $query = "SELECT `b`.`id` as `blog_id`, `b`.`title`, `b`.`body`, `c`.`category_name`, `u`.`email`, `b`.`date_created`, `u`.`name` FROM `blogs` as `b` INNER JOIN `categories` as `c` ON `c`.`id` = `b`.`category_id` INNER JOIN `users` as `u` ON `u`.`id` = `b`.`user_id` ORDER BY `b`.`id` DESC";
+        $result = mysqli_query($connection, $query);
+
+        if (mysqli_num_rows($result) > 0) {
+           $blogs = $result;
+        } 
+
+        return $blogs;        
+    }
+
+    function get_blogs_by_category($category_id) {
+        global $connection;
+        $blogs = [];
+
+        $query = "SELECT `b`.`id` as `blog_id`, `b`.`title`, `b`.`body`, `c`.`category_name`, `u`.`email`, `b`.`date_created`, `u`.`name` FROM `blogs` as `b` INNER JOIN `categories` as `c` ON `c`.`id` = `b`.`category_id` INNER JOIN `users` as `u` ON `u`.`id` = `b`.`user_id` WHERE `b`.`category_id` = '".escape_string($category_id)."' ORDER BY `b`.`id` DESC";
+        $result = mysqli_query($connection, $query);
+
+        if (mysqli_num_rows($result) > 0) {
+           $blogs = $result;
+        } 
+
+        return $blogs;
     }
 ?>

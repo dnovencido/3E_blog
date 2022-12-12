@@ -1,23 +1,25 @@
 <?php
+
     include "functions.php";
     include "session.php";
-
-    $blog = [];
+    include "check_login.php";
+    
     $errors = [];
-
     $categories = get_categories();
 
-    if(array_key_exists("id", $_GET)) {
+    if (array_key_exists("id", $_GET)) {
         $blog = view_blog($_GET['id']);
-        $blog_id = $blog['id'];
+        $blog_id = $blog['blog_id'];
 
         if($_POST['submit']) {
-            $errors = validate_form_blog($title, $body, $category_id);
+            $errors = validate_form_blog($_POST['title'], $_POST['body'], $_POST['category_id']);
             if(empty($errors)) {
-                if(update_blog($_POST['title'], $_POST['body'], $_POST['category_id'], $_GET['id'])) {
-                    header("Location: view-blog?id=".$_GET['id']);
+                if(update_blog($blog_id, $_POST['title'], $_POST['body'], $_POST['category_id'])) {
+                    header("Location: view-blog.php?id=". $blog_id);
+                } else {
+                    $errors[] = "Could not update a blog post. Please try again later.";
                 }
-            }
+            } 
         }
     }
 ?>
@@ -29,16 +31,16 @@
             <section>
                 <div class="container">
                     <?php if (!empty($errors)) { ?>
-                        <?php include "layouts/_error-messages.php" ?>
+                        <?php include "_error-message.php" ?>
                     <?php } ?>
                     <form method="POST">
                         <div class="input-control">
                             <label for="title">Title: </label>
-                            <input type="text" name="title" class="input-field" value="<?= (isset($_POST['title'])) ? $_POST['title'] : $blog['title'] ?>">
+                            <input type="text" name="title" class="input-field" value="<?= isset($_POST['title']) ? $_POST['title'] : $blog['title'] ?>">
                         </div>
                         <div class="input-control">
                             <label for="body">Body: </label>
-                            <textarea name="body" class="input-field" cols="30" rows="20"></textarea>
+                            <textarea name="body" class="input-field" cols="30" rows="20"><?= isset($_POST['body']) ? $_POST['body'] : $blog['body'] ?></textarea>
                         </div>
                         <div class="input-control">
                             <label for="category">Category:</label>
