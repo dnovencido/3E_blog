@@ -144,7 +144,7 @@
         global $connection;
         $blog = [];
 
-        $query = "SELECT `b`.`id` as blog_id, `b`.`title`, `b`.`body`,  `b`.`category_id`, `c`.`category_name`, `u`.`name`, `u`.`email` FROM `blogs` as `b` INNER JOIN `users` as `u` ON `u`.`id` = `b`.`user_id` INNER JOIN `categories` as `c` ON `c`.`id` = `b`.`category_id` WHERE `b`.`id` = '".mysqli_real_escape_string($connection, $id)."'";
+        $query = "SELECT `b`.`id` as blog_id, `b`.`title`, `b`.`body`,  `b`.`category_id`, `b`.`user_id`, `c`.`category_name`, `u`.`name`, `u`.`email` FROM `blogs` as `b` INNER JOIN `users` as `u` ON `u`.`id` = `b`.`user_id` INNER JOIN `categories` as `c` ON `c`.`id` = `b`.`category_id` WHERE `b`.`id` = '".mysqli_real_escape_string($connection, $id)."'";
 
         $result = mysqli_query($connection, $query);
         $rows = mysqli_fetch_array($result, MYSQLI_ASSOC);
@@ -196,5 +196,29 @@
         } 
 
         return $blogs;
+    }
+
+    function is_owner($current_user, $blog_user_id) {
+        return ($current_user == $blog_user_id) ? true : false;
+    }
+
+    function delete_blog($current_user, $blog_id) {
+        global $connection;
+        $flag = false;
+
+        $query = "SELECT * FROM `blogs` WHERE `blogs`.`id` = '".escape_string($blog_id)."'";
+        $result = mysqli_query($connection, $query);
+
+        if(mysqli_num_rows($result) > 0) {
+            $blog = mysqli_fetch_array($result, MYSQLI_ASSOC);
+
+            $query = "DELETE FROM `blogs` WHERE `blogs`.`id` = '".$blog['id']."'";
+
+            if(mysqli_query($connection, $query) && is_owner($current_user, $blog['user_id'])) {
+                $flag = true;
+            }
+        }
+
+        return $flag;
     }
 ?>
